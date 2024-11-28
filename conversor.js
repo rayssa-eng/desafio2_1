@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import fetch from 'node-fetch';
 
 dotenv.config();
 
@@ -26,7 +27,34 @@ export class Conversor {
         } catch (error) {
             console.error('Erro na API', error.message);
         }
-    }    
+    }
+    
+    async validateCurrencyString(currency) {
+        const endpoint = 'latest/BRL';
+
+        try {
+            const response = await fetch(`https://${this.baseURL}/${API_KEY}/${endpoint}`);
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(error.message || 'Ocorreu um erro.');
+            }
+
+            const result = await response.json();
+
+            const validCurrencies = Object.keys(result.conversion_rates);
+
+            if (!validCurrencies.includes(currency)) {
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            console.error('Erro na API: ', error.message);
+        }
+
+        
+    }
 }
 
 const conversorMoedas = new Conversor('v6.exchangerate-api.com/v6');
